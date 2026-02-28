@@ -10,13 +10,13 @@ const ReceptionistDashboard = () => {
       <div>
         <h2 className="text-xl font-bold mb-2">Patient Management</h2>
         <PatientForm />
-        {/* <PatientTable /> */}
+        <PatientTable />
       </div>
 
       <div>
         <h2 className="text-xl font-bold mb-2">Appointment Management</h2>
-        {/* <AppointmentForm />
-        <AppointmentTable /> */}
+        <AppointmentForm />
+        <AppointmentTable />
       </div>
     </div>
   );

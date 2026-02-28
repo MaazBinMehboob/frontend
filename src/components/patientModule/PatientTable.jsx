@@ -19,13 +19,13 @@ const PatientTable = () => {
         </tr>
       </thead>
       <tbody>
-        {data.patients.map((patient) => (
+        {(data?.patients || []).map((patient) => (
           <tr key={patient._id} className="border-t">
             <td>{patient.name}</td>
             <td>{patient.age}</td>
             <td>{patient.gender}</td>
             <td>{patient.contact}</td>
-            <td>{patient.createdBy.name} ({patient.createdBy.role})</td>
+            <td>{patient.createdBy?.name || 'N/A'} ({patient.createdBy?.role || 'N/A'})</td>
           </tr>
         ))}
       </tbody>

@@ -4,10 +4,12 @@ import { useSelector } from "react-redux";
 
 const AppointmentTable = () => {
   const { user } = useSelector(state => state.auth);
-  const { data, isLoading, error } = user.role === "doctor"
-    ? useGetDoctorAppointmentsQuery(user._id)
-    : useGetPatientAppointmentsQuery(user._id);
-
+  
+  // Always call both hooks - React rules
+  const doctorQuery = useGetDoctorAppointmentsQuery(user?._id, { skip: !user || user.role !== "doctor" });
+  const patientQuery = useGetPatientAppointmentsQuery(user?._id, { skip: !user || user.role !== "patient" });
+  
+  const { data, isLoading, error } = user?.role === "doctor" ? doctorQuery : patientQuery;
   const [updateStatus] = useUpdateAppointmentStatusMutation();
 
   if (isLoading) return <p>Loading appointments...</p>;
@@ -29,13 +31,13 @@ const AppointmentTable = () => {
         </tr>
       </thead>
       <tbody>
-        {data.map(appt => (
+        {(data?.appointments || []).map(appt => (
           <tr key={appt._id} className="border-t">
-            <td>{appt.patientId.name}</td>
-            <td>{appt.doctorId.name}</td>
+            <td>{appt.patientId?.name || 'N/A'}</td>
+            <td>{appt.doctorId?.name || 'N/A'}</td>
             <td>{new Date(appt.date).toLocaleString()}</td>
             <td>
-              {user.role === "doctor" || user.role === "receptionist" ? (
+              {user?.role === "doctor" || user?.role === "receptionist" ? (
                 <select value={appt.status} onChange={e => handleStatusChange(appt._id, e.target.value)}>
                   <option value="pending">Pending</option>
                   <option value="confirmed">Confirmed</option>
