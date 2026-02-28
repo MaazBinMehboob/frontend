@@ -10,7 +10,7 @@ const ReceptionistDashboard = () => {
       <div>
         <h2 className="text-xl font-bold mb-2">Patient Management</h2>
         <PatientForm />
-        <PatientTable />
+        {/* <PatientTable /> */}
       </div>
 
       <div>
