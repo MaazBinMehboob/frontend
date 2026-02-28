@@ -3,21 +3,25 @@ import { useGetDoctorAppointmentsQuery, useGetPatientAppointmentsQuery, useUpdat
 import { useSelector } from "react-redux";
 
 const AppointmentTable = () => {
-  const { user } = useSelector(state => state.auth);
+  const { user } = useSelector(state => state.auth || {});
   
-  // Always call both hooks - React rules
-  const doctorQuery = useGetDoctorAppointmentsQuery(user?._id, { skip: !user || user.role !== "doctor" });
-  const patientQuery = useGetPatientAppointmentsQuery(user?._id, { skip: !user || user.role !== "patient" });
+  // Always call both hooks - React rules (skip filter prevents unnecessary calls)
+  const doctorQuery = useGetDoctorAppointmentsQuery(user?._id || "", { skip: !user || user.role !== "doctor" });
+  const patientQuery = useGetPatientAppointmentsQuery(user?._id || "", { skip: !user || user.role !== "patient" });
   
   const { data, isLoading, error } = user?.role === "doctor" ? doctorQuery : patientQuery;
   const [updateStatus] = useUpdateAppointmentStatusMutation();
 
+  if (!user) return <p>Please log in to view appointments</p>;
   if (isLoading) return <p>Loading appointments...</p>;
   if (error) return <p>Error loading appointments</p>;
 
   const handleStatusChange = async (id, status) => {
-    try { await updateStatus({ id, status }).unwrap(); }
-    catch(err){ alert(err.data?.message || "Failed to update status"); }
+    try { 
+      await updateStatus({ id, status }).unwrap(); 
+    } catch(err) { 
+      alert(err.data?.message || "Failed to update status"); 
+    }
   }
 
   return (
