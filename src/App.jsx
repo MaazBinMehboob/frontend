@@ -2,14 +2,9 @@ import React from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 // Pages
-import Home from "./pages/Home";
+import ReceptionistDashboard from "./pages/ReceptionistDashboard";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
-import Dashboard from "./pages/Dashboard";
-import ReceptionistDashboard from "./pages/ReceptionistDashboard";
-// import AdminDashboard from "./pages/AdminDashboard";
-// import DoctorDashboard from "./pages/DoctorDashboard";
-// import PatientDashboard from "./pages/PatientDashboard";
 
 // Routes
 import ProtectedRoute from "@/components/routes/ProtectedRoutes";
@@ -22,9 +17,17 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Public Routes */}
-        <Route path="/" element={<Home />} />
-        
+        {/* Directly load receptionist dashboard as protected */}
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <ReceptionistDashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Optional login/signup */}
         <Route
           path="/login"
           element={
@@ -41,22 +44,6 @@ function App() {
             </PublicRoute>
           }
         />
-
-        {/* Protected Dashboard Routes */}
-        <Route
-          path="/dashboard/*"
-          element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          }
-        >
-          {/* Role-based nested routes */}
-          <Route path="receptionist" element={<ReceptionistDashboard />} />
-          {/* <Route path="admin" element={<AdminDashboard />} /> */}
-          {/* <Route path="doctor" element={<DoctorDashboard />} /> */}
-          {/* <Route path="patient" element={<PatientDashboard />} /> */}
-        </Route>
 
         {/* Fallback route */}
         <Route path="*" element={<Navigate to="/" replace />} />
