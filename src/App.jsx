@@ -48,7 +48,6 @@ function App() {
         {/* Fallback route */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-
       <Toaster position="top-center" richColors closeButton />
     </BrowserRouter>
   );
