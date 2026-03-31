@@ -25,15 +25,21 @@ const Signup = () => {
   });
 
   const onSubmit = async (data) => {
-    // The "Professional" Promise Toast
-    toast.promise(signUpUser(data).unwrap(), {
-      loading: "Creating your profile...",
-      success: () => {
-        navigate("/login");
-        return "Account created! You can now log in.";
-      },
-      error: (err) => err?.data?.error || "Registration failed. Please try again.",
-    });
+    const toastId = toast.loading("Creating your profile...");
+    
+    try {
+      await signUpUser(data).unwrap();
+      toast.success("Account created successfully!", {
+        id: toastId,
+        description: "Redirecting to login...",
+      });
+      navigate("/login", { replace: true });
+    } catch (err) {
+      toast.error("Registration Failed", {
+        id: toastId,
+        description: err?.data?.error || "Registration failed. Please try again.",
+      });
+    }
   };
 
   return (

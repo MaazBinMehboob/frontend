@@ -2,12 +2,14 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Link, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
 import { toast } from "sonner";
 import { Eye, EyeOff, Mail, Lock, Loader2, Heart, Stethoscope } from "lucide-react";
 
 // 1. IMPORTANT: Ensure this path is correct for your project
 import { useLoginUserMutation } from "../services/auth"; 
 import { loginSchema } from "../schema/auth";
+import { getDashboardRoute } from "@/utils/roleUtils";
 
 // shadcn components
 import { Input } from "@/components/ui/input";
@@ -16,6 +18,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 
 const Login = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [showPassword, setShowPassword] = useState(false);
   
   // 2. Mutation Hook
@@ -30,14 +33,17 @@ const Login = () => {
     const toastId = toast.loading("Verifying credentials...");
 
     try {
-      await loginUser(data).unwrap();
+      const response = await loginUser(data).unwrap();
+      const userRole = response?.user?.role;
       
       toast.success("Welcome back!", {
         id: toastId,
-        description: "Login successful.",
+        description: `Logged in as ${response?.user?.name}`,
       });
 
-      navigate("/", { replace: true });
+      // Redirect to appropriate dashboard based on user role
+      const dashboardRoute = getDashboardRoute(userRole);
+      navigate(dashboardRoute, { replace: true });
     } catch (err) {
       toast.error("Login Failed", {
         id: toastId,

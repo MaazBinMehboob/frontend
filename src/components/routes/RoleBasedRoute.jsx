@@ -1,9 +1,10 @@
+import React from "react";
 import { Navigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { Loader2 } from "lucide-react";
 import { useMeQuery } from "@/services/auth";
 
-const ProtectedRoute = ({ children, allowedRoles = null }) => {
+const RoleBasedRoute = ({ children, allowedRoles }) => {
   const { data, isLoading, isError } = useMeQuery();
   const { user } = useSelector(state => state.auth || {});
 
@@ -18,16 +19,26 @@ const ProtectedRoute = ({ children, allowedRoles = null }) => {
     );
   }
 
+  // Not authenticated
   if (isError || !data || !user) {
     return <Navigate to="/login" replace />;
   }
 
-  // Check if specific roles are allowed and user has one of them
+  // Check if user role is allowed
   if (allowedRoles && !allowedRoles.includes(user.role)) {
-    return <Navigate to="/unauthorized" replace />;
+    // Redirect to appropriate dashboard based on user role
+    if (user.role === "admin") {
+      return <Navigate to="/admin" replace />;
+    } else if (user.role === "patient") {
+      return <Navigate to="/patient" replace />;
+    } else if (user.role === "receptionist") {
+      return <Navigate to="/receptionist" replace />;
+    }
+    // Default fallback
+    return <Navigate to="/" replace />;
   }
 
   return children;
 };
 
-export default ProtectedRoute;
+export default RoleBasedRoute;
