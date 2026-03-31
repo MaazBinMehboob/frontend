@@ -1,19 +1,30 @@
 import React, { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { logout } from "@/features/authSlice";
+import { useLogoutUserMutation } from "@/services/auth";
+import { authApi } from "@/services/auth";
 import { Button } from "@/components/ui/button";
-import { Menu, X, LogOut, BarChart3, User } from "lucide-react";
+import { Menu, X, LogOut, BarChart3, User, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { user } = useSelector(state => state.auth || {});
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [logoutUser, { isLoading }] = useLogoutUserMutation();
 
-  const handleLogout = () => {
-    dispatch(logout());
-    navigate("/login", { replace: true });
+  const handleLogout = async () => {
+    const toastId = toast.loading("Logging out...");
+    try {
+      await logoutUser().unwrap();
+      dispatch(authApi.util.resetApiState());
+      toast.success("Logged out successfully!", { id: toastId });
+      navigate("/login", { replace: true });
+    } catch (error) {
+      toast.error(error?.data?.error || "Logout failed", { id: toastId });
+      console.error("Logout error:", error);
+    }
   };
 
   return (
@@ -44,11 +55,12 @@ const Navbar = () => {
                 </div>
                 <Button
                   onClick={handleLogout}
+                  disabled={isLoading}
                   variant="outline"
-                  className="gap-2 border-red-200 text-red-600 hover:bg-red-50"
+                  className="gap-2 border-red-200 text-red-600 hover:bg-red-50 disabled:opacity-60"
                 >
-                  <LogOut className="w-4 h-4" />
-                  Logout
+                  {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <LogOut className="w-4 h-4" />}
+                  {isLoading ? "Signing out..." : "Logout"}
                 </Button>
               </>
             )}
@@ -81,10 +93,11 @@ const Navbar = () => {
                 </div>
                 <Button
                   onClick={handleLogout}
-                  className="w-full gap-2 bg-red-600 hover:bg-red-700"
+                  disabled={isLoading}
+                  className="w-full gap-2 bg-red-600 hover:bg-red-700 disabled:opacity-60"
                 >
-                  <LogOut className="w-4 h-4" />
-                  Logout
+                  {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <LogOut className="w-4 h-4" />}
+                  {isLoading ? "Signing out..." : "Logout"}
                 </Button>
               </>
             )}
